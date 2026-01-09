@@ -4,8 +4,18 @@ from pydantic import BaseModel
 import uuid
 import logging
 import asyncio
-from backend.main import Assistant, AgentSession, RoomInputOptions, RoomOutputOptions, noise_cancellation, openai, TurnDetection, metrics
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Try importing from backend.main first (for when running from root), 
+# otherwise import from main (for when running from backend directory)
+try:
+    from backend.main import Assistant, AgentSession, RoomInputOptions, RoomOutputOptions, noise_cancellation, openai, TurnDetection, metrics
+except ImportError:
+    from main import Assistant, AgentSession, RoomInputOptions, RoomOutputOptions, noise_cancellation, openai, TurnDetection, metrics
 
 app = FastAPI()
 app.add_middleware(
@@ -15,6 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # In-memory session store
 sessions = {}
@@ -79,21 +93,46 @@ class VoiceAgentSession:
 
 @app.post("/session/start")
 async def start_session():
-    session_id = str(uuid.uuid4())
-    sessions[session_id] = VoiceAgentSession()
-    return {"session_id": session_id}
+    try:
+        session_id = str(uuid.uuid4())
+        sessions[session_id] = VoiceAgentSession()
+        logger.info(f"Started new session: {session_id}")
+        return {"session_id": session_id}
+    except Exception as e:
+        logger.error(f"Error starting session: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to start session: {str(e)}")
 
 @app.post("/session/{session_id}/chat", response_model=ChatResponse)
 async def chat(session_id: str, request: ChatRequest):
-    session = sessions.get(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found")
-    response = await session.send_message(request.message)
-    return ChatResponse(response=response)
+    try:
+        session = sessions.get(session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        logger.info(f"Processing chat message for session: {session_id}")
+        response = await session.send_message(request.message)
+        return ChatResponse(response=response)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing chat message: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to process message: {str(e)}")
 
 @app.post("/session/{session_id}/end")
 async def end_session(session_id: str):
-    session = sessions.pop(session_id, None)
-    if session:
-        session.close()
-    return {"status": "ended"} 
+    try:
+        session = sessions.pop(session_id, None)
+        if session:
+            session.close()
+            logger.info(f"Ended session: {session_id}")
+        return {"status": "ended"}
+    except Exception as e:
+        logger.error(f"Error ending session: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to end session: {str(e)}")
+
+@app.get("/")
+async def root():
+    return {"message": "Voice Assistant API is running", "status": "healthy"}
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "service": "voice-assistant-api"} 
