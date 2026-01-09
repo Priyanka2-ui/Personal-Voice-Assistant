@@ -67,7 +67,7 @@ export const Welcome = ({
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
           className="mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-5xl font-extrabold tracking-tight text-transparent md:text-6xl dark:from-white dark:to-gray-300"
         >
-          Meet Tejas Gadhe
+          Meet Priyanka Shilwant
         </motion.h1>
 
         {/* Subtitle */}
@@ -87,8 +87,8 @@ export const Welcome = ({
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
           className="mx-auto mb-8 max-w-lg text-lg leading-relaxed text-gray-700 dark:text-gray-300"
         >
-          Experience a natural conversation with Tejas, a GenAI Full-Stack Engineer. Ask questions
-          about his background, projects, and expertise in AI development.
+          Experience a natural conversation with Priyanka, a GenAI Engineer Intern. Ask questions
+          about her background, projects, and expertise in backend AI systems, RAG, and fine-tuning.
         </motion.p>
 
         {/* Features (unchanged) */}

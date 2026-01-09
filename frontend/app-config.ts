@@ -1,9 +1,9 @@
 import type { AppConfig } from './lib/types';
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Tejas Gadhe',
-  pageTitle: 'Tejas Gadhe - AI Voice Assistant',
-  pageDescription: 'Experience a natural conversation with Tejas, a GenAI Full-Stack Engineer',
+  companyName: 'Priyanka Shilwant',
+  pageTitle: 'Priyanka Shilwant - AI Voice Assistant',
+  pageDescription: 'Experience a natural conversation with Priyanka, a GenAI Engineer Intern specializing in backend AI systems',
 
   supportsChatInput: true,
   supportsVideoInput: true,
